@@ -15,6 +15,18 @@ const lobby = $("lobby"),
   game = $("game"),
   boardElement = $("board");
 
+function updateCellFontSize() {
+  const size = Number(gameState?.boardSize || 3);
+  const gap = parseFloat(getComputedStyle(boardElement).columnGap) || 0;
+  const cellWidth = (boardElement.clientWidth - gap * (size - 1)) / size;
+  boardElement.style.setProperty("--cell-font-size", `${cellWidth * 0.68}px`);
+}
+
+if ("ResizeObserver" in window) {
+  const boardResizeObserver = new ResizeObserver(updateCellFontSize);
+  boardResizeObserver.observe(boardElement);
+}
+
 boardElement.addEventListener("click", (event) => {
   const target = event.target;
   if (!(target instanceof Element)) return;
@@ -97,6 +109,7 @@ function render() {
   if (cells.length !== gameState.board.length)
     buildBoard(gameState.board.length);
   boardElement.style.setProperty("--board-size", size);
+  updateCellFontSize();
 
   cells.forEach((cell, i) => {
     const value = gameState.board[i];

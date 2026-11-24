@@ -204,10 +204,12 @@ button:disabled {
   border-radius: 5px;
   background: #0e1831;
   border: 1px solid #344365;
-  font-size: clamp(48px, 16vw, 96px);
+  font-size: clamp(8px, var(--cell-font-size, 48px), 72px);
+  line-height: 1;
   font-weight: 800;
   cursor: pointer;
   user-select: none;
+  line-height: 1;
 }
 .cell[aria-disabled="true"] {
   opacity: 1;
@@ -297,11 +299,11 @@ select {
   gap: 2px;
   width: 100%;
   max-width: 560px;
+  container-type: inline-size;
 }
 .cell {
   min-width: 0;
   border-radius: 8px;
-  font-size: clamp(13px, calc(240px / var(--board-size)), 72px);
 }
 .cell.last-opponent {
   background: #344b80;
@@ -364,11 +366,11 @@ select {
   gap: 1px;
   width: 100%;
   max-width: 560px;
+  container-type: inline-size;
 }
 .cell {
   min-width: 0;
   border-radius: 1px;
-  font-size: clamp(13px, calc(240px / var(--board-size)), 72px);
 }
 .cell.last-opponent {
   background: #344b80;
@@ -398,6 +400,6 @@ select {
     gap: 0px;
   }
   .cell {
-    border-radius: 2px;
+    border-radius: 1px;
   }
 }
