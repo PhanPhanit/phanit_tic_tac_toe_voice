@@ -10,6 +10,7 @@ let localStream = null,
 let cells = [...document.querySelectorAll(".cell")];
 let lastSeenMoveNumber = 0,
   opponentFlashTimer = null;
+let pendingCandidates = [];
 
 const lobby = $("lobby"),
   game = $("game"),
@@ -209,10 +210,46 @@ $("leaveBtn").onclick = () => {
   socket.connect();
 };
 
+async function processPendingCandidates() {
+  while (pendingCandidates.length > 0) {
+    const candidate = pendingCandidates.shift();
+
+    try {
+      await peer.addIceCandidate(candidate);
+    } catch (err) {
+      console.error("ICE candidate error:", err);
+    }
+  }
+}
+
 async function ensurePeer() {
   if (peer) return peer;
   peer = new RTCPeerConnection({
-    iceServers: [{ urls: "stun:stun.l.google.com:19302" }],
+    iceServers: [
+      {
+        urls: "stun:stun.relay.metered.ca:80",
+      },
+      {
+        urls: "turn:global.relay.metered.ca:80",
+        username: "21a3021e845dfbdc72005a48",
+        credential: "JPqjzUie84kCUCoN",
+      },
+      {
+        urls: "turn:global.relay.metered.ca:80?transport=tcp",
+        username: "21a3021e845dfbdc72005a48",
+        credential: "JPqjzUie84kCUCoN",
+      },
+      {
+        urls: "turn:global.relay.metered.ca:443",
+        username: "21a3021e845dfbdc72005a48",
+        credential: "JPqjzUie84kCUCoN",
+      },
+      {
+        urls: "turns:global.relay.metered.ca:443?transport=tcp",
+        username: "21a3021e845dfbdc72005a48",
+        credential: "JPqjzUie84kCUCoN",
+      },
+    ],
   });
   remoteStream = new MediaStream();
   $("remoteAudio").srcObject = remoteStream;
@@ -276,6 +313,7 @@ socket.on("webrtc-offer", async (offer) => {
     if (!localStream) return;
     const pc = await ensurePeer();
     await pc.setRemoteDescription(offer);
+    await processPendingCandidates();
     const answer = await pc.createAnswer();
     await pc.setLocalDescription(answer);
     socket.emit("webrtc-answer", answer);
@@ -284,15 +322,21 @@ socket.on("webrtc-offer", async (offer) => {
   }
 });
 socket.on("webrtc-answer", async (answer) => {
-  if (peer) await peer.setRemoteDescription(answer);
+  if (peer) {
+    await peer.setRemoteDescription(answer);
+    await processPendingCandidates();
+  }
 });
 socket.on("webrtc-ice", async (candidate) => {
-  if (peer) {
-    try {
-      await peer.addIceCandidate(candidate);
-    } catch (err) {
-      console.warn(err);
-    }
+  if (!peer || !peer.remoteDescription) {
+    pendingCandidates.push(candidate);
+    return;
+  }
+
+  try {
+    await peer.addIceCandidate(candidate);
+  } catch (err) {
+    console.error("ICE error:", err);
   }
 });
 $("muteBtn").onclick = () => {
@@ -312,6 +356,7 @@ function cleanupVoice() {
   }
   remoteStream = null;
   voiceReady = false;
+  pendingCandidates = [];
   $("remoteAudio").srcObject = null;
   $("voiceBtn").disabled = !currentRoom;
   $("muteBtn").disabled = true;
