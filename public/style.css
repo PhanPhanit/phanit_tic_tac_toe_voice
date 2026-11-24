@@ -331,10 +331,10 @@ select {
     gap: 8px;
   }
   .board {
-    gap: 2px;
+    gap: 1px;
   }
   .cell {
-    border-radius: 5px;
+    border-radius: 2px;
   }
 }
 
@@ -361,13 +361,13 @@ select {
 .board {
   --board-size: 3;
   grid-template-columns: repeat(var(--board-size), minmax(0, 1fr));
-  gap: 2px;
+  gap: 1px;
   width: 100%;
   max-width: 560px;
 }
 .cell {
   min-width: 0;
-  border-radius: 5px;
+  border-radius: 1px;
   font-size: clamp(13px, calc(240px / var(--board-size)), 72px);
 }
 .cell.last-opponent {
@@ -395,9 +395,9 @@ select {
     gap: 8px;
   }
   .board {
-    gap: 2px;
+    gap: 0px;
   }
   .cell {
-    border-radius: 5px;
+    border-radius: 2px;
   }
 }
