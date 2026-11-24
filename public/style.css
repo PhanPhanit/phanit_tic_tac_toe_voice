@@ -209,7 +209,8 @@ button:disabled {
   font-weight: 800;
   cursor: pointer;
   user-select: none;
-  line-height: 1;
+  text-align: center;
+  line-height: 100%;
 }
 .cell[aria-disabled="true"] {
   opacity: 1;
